@@ -27,7 +27,7 @@ describe("GET /api/topics", () => {
       .then(({ body }) => {
         expect(Array.isArray(body)).toBe(true);
 
-        expect(body).toHaveLength(3)
+        expect(body.length).toBeGreaterThan(0);
 
         body.forEach((itemObj) => {
           expect(itemObj).toBeInstanceOf(Object);
@@ -38,6 +38,8 @@ describe("GET /api/topics", () => {
     return request(app)
       .get("/api/topics")
       .then(({ body }) => {
+        expect(body.length).toBeGreaterThan(0);
+
         body.forEach((itemObj) => {
           expect(itemObj).toEqual(
             expect.objectContaining({
