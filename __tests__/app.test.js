@@ -21,11 +21,13 @@ describe("GET /api/topics", () => {
         expect(res.body.msg).toBe("Bad path");
       });
   });
-  test("responds with an array of objects", () => {
+  test("responds with an array of objects of expected length", () => {
     return request(app)
       .get("/api/topics")
       .then(({ body }) => {
         expect(Array.isArray(body)).toBe(true);
+
+        expect(body).toHaveLength(3)
 
         body.forEach((itemObj) => {
           expect(itemObj).toBeInstanceOf(Object);
