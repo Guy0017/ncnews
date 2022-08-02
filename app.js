@@ -15,7 +15,7 @@ app.get("/api/articles/:article_id", getArticle);
 app.patch("/api/articles/:article_id", updateArticle);
 
 app.all("*", (req, res) => {
-  res.status(404).send({ msg: "Bad path" });
+  res.status(404).send({ msg: "Not Found" });
 });
 
 app.use((err, req, res, next) => {

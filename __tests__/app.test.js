@@ -11,12 +11,12 @@ describe("GET /api/topics", () => {
   test("responds with status 200", () => {
     return request(app).get("/api/topics").expect(200);
   });
-  test('responds with status 404 and "Bad path" to an invalid request', () => {
+  test('responds with status 404 and "Not Found" to an invalid request', () => {
     return request(app)
       .get("/api/invalid_request")
       .expect(404)
       .then((res) => {
-        expect(res.body.msg).toBe("Bad path");
+        expect(res.body.msg).toBe("Not Found");
       });
   });
   test("responds with an array of objects", () => {
