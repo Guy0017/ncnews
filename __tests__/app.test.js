@@ -98,19 +98,9 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/999")
       .expect(404)
       .then(({ body }) => {
-        console.log(body);
 
         expect(body.msg).toBe("No Article With That ID");
       });
   });
-  test('status: 404 and "No Article With That ID" for valid ID but data does not exist', () => {
-    return request(app)
-      .get("/api/articles/999")
-      .expect(404)
-      .then(({ body }) => {
-        console.log(body);
 
-        expect(body.msg).toBe("No Article With That ID");
-      });
-  });
 });
