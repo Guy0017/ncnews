@@ -13,3 +13,17 @@ exports.findArticle = (req) => {
       return article;
     });
 };
+
+exports.changeArticle = (req) => {
+  const { article_id: id } = req.params;
+  const { inc_votes: votes } = req.body;
+
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;",
+      [votes, id]
+    )
+    .then(({ rows: updatedArticle }) => {
+      return updatedArticle;
+    });
+};
