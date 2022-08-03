@@ -207,7 +207,7 @@ describe("GET /api/users", () => {
         });
       });
   });
-  test('each object has keys: "slug" and "description" and both have string as their value', () => {
+  test('each object has keys: "username", "name" and "avatar_url" and all have string as their value', () => {
     return request(app)
       .get("/api/users")
       .then(({ body }) => {
