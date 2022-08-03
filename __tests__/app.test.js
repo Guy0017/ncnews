@@ -187,3 +187,42 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("responds with status 200", () => {
+    return request(app).get("/api/topics").expect(200);
+  });
+
+  test("responds with an array of objects", () => {
+    return request(app)
+      .get("/api/users")
+      .then(({ body }) => {
+        const usersArray = body.usersArray;
+        expect(Array.isArray(usersArray)).toBe(true);
+
+        expect(usersArray.length).toBeGreaterThan(0);
+
+        usersArray.forEach((itemObj) => {
+          expect(itemObj).toBeInstanceOf(Object);
+        });
+      });
+  });
+  test('each object has keys: "slug" and "description" and both have string as their value', () => {
+    return request(app)
+      .get("/api/users")
+      .then(({ body }) => {
+        const usersArray = body.usersArray;
+        expect(usersArray.length).toBeGreaterThan(0);
+
+        usersArray.forEach((itemObj) => {
+          expect(itemObj).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
