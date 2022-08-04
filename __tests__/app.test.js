@@ -226,3 +226,37 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id (comment count)", () => {
+  test("status: 200 and added comment to article response object", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const [infoObj] = body.article;
+
+        expect(infoObj).toEqual(
+          expect.objectContaining({
+            comment_count: expect.any(Number),
+          })
+        );
+      });
+  });
+
+  test("status: 200, response where article has no corresponding comment should show count to be 0", () => {
+    return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then(({ body }) => {
+        const [infoObj] = body.article;
+
+        expect(infoObj).toEqual(
+          expect.objectContaining({
+            comment_count: 0,
+          })
+        );
+      });
+  });
+});
+
+// previous GET tests handle errors for this same endpoint and other TDD
