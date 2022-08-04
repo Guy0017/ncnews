@@ -301,4 +301,13 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  test("the array of objects is sorted by article creation date by default", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        const arrayOfObjects = body.articles;
+
+        expect(arrayOfObjects).toBeSortedBy("created_at", { descending: true });
+      });
+  });
 });
