@@ -259,4 +259,55 @@ describe("GET /api/articles/:article_id (comment count)", () => {
   });
 });
 
-// previous GET tests handle errors for this same endpoint and other TDD
+describe("GET /api/articles", () => {
+  test("status: 200", () => {
+    return request(app).get("/api/articles").expect(200);
+  });
+  test("response is an object with key as description and value of an object of array holding of objects holding data requested", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        const arrayOfObjects = body.articles;
+
+        expect(body).toBeInstanceOf(Object);
+        expect(Array.isArray(arrayOfObjects)).toBe(true);
+        expect(arrayOfObjects.length).toBeGreaterThan(0);
+
+        arrayOfObjects.forEach((infoObj) => {
+          expect(infoObj).toBeInstanceOf(Object);
+        });
+      });
+  });
+  test("each object within the array contains the correct keys and expected value types", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        const arrayOfObjects = body.articles;
+
+        expect(arrayOfObjects.length).toBeGreaterThan(0);
+
+        arrayOfObjects.forEach((infoObj) => {
+          expect(infoObj).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("the array of objects is sorted by article creation date by default", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        const arrayOfObjects = body.articles;
+
+        expect(arrayOfObjects).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});

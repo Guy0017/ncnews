@@ -1,4 +1,8 @@
-const { findArticle, changeArticle } = require("../model/article.model");
+const {
+  findArticle,
+  changeArticle,
+  findAllArticles,
+} = require("../model/article.model");
 
 exports.getArticle = (req, res, next) => {
   findArticle(req)
@@ -14,4 +18,11 @@ exports.updateArticle = (req, res, next) => {
       res.status(200).send({ updatedArticle: updatedArticle });
     })
     .catch(next);
+};
+
+exports.getAllArticles = (req, res, next) => {
+  findAllArticles().then((arrayOfArticles) => {
+    res.status(200).send({ articles: arrayOfArticles });
+  })
+  .catch(next)
 };
