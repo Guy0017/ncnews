@@ -368,7 +368,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("article_id Not Found");
       });
   });
-  test("article_id that exists in databse but there is no data: article_id = 2. Expect user to be send empty array", () => {
+  test("article_id that exists in database but there is no data: article_id = 2. Expect user to be sent empty array", () => {
     return request(app)
       .get("/api/articles/2/comments")
       .expect(200)
@@ -379,6 +379,99 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(Array.isArray(emptyArray)).toBe(true);
         expect(emptyArray.length).toBe(0);
         expect(emptyArray).toEqual([]);
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("status: 201 for valid post", () => {
+    const input = {
+      username: "icellusedkars",
+      body: "Coding is like dreaming...",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .expect(201);
+  });
+  test("returns uploaded post wrapped in a object with a description as it's key and uploaded post as it's value. Value is an object", () => {
+    const input = {
+      username: "icellusedkars",
+      body: "Coding is like dreaming...",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .then(({ body }) => {
+        const infoObj = body.uploadedComment;
+
+        expect(infoObj).toBeInstanceOf(Object);
+        expect(body).toBeInstanceOf(Object);
+      });
+  });
+  test("the object contains the correct keys and value type", () => {
+    const input = {
+      username: "icellusedkars",
+      body: "Coding is like dreaming...",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .then(({ body }) => {
+        const infoObj = body.uploadedComment;
+
+        expect(infoObj).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            body: input.body,
+            article_id: 1,
+            author: input.username,
+            votes: 0,
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+  test("status: 400 and 'Bad Request' for malformed request object", () => {
+    const input = {};
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 and 'Bad Request' for incorrect keys and value type in request object", () => {
+    const input = {
+      usname: "icellusedkars",
+      bod: 2,
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 and 'Bad Request' for username that does not appear in users database", () => {
+    const input = {
+      username: "NOT A USER",
+      body: "NOT A USER",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });

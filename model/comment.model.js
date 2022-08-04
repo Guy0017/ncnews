@@ -18,3 +18,18 @@ exports.findCommentsByArticleId = (req) => {
     return arrayOfComments;
   });
 };
+
+exports.addCommentByArticleId = (req) => {
+  const { body } = req.body;
+  const { username: author } = req.body;
+  const { article_id } = req.params;
+
+  return db
+    .query(
+      "INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING *;",
+      [body, author, article_id]
+    )
+    .then(({ rows: uploadedComment }) => {
+      return uploadedComment;
+    });
+};
