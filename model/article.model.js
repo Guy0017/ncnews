@@ -4,7 +4,10 @@ exports.findArticle = (req) => {
   const { article_id: id } = req.params;
 
   return db
-    .query("SELECT * FROM articles WHERE article_id = $1", [id])
+    .query(
+      "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;",
+      [id]
+    )
     .then(({ rows: article }) => {
       if (article.length === 0) {
         return Promise.reject({ status: 404, msg: "No Article With That ID" });
