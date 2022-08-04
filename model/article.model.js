@@ -30,3 +30,13 @@ exports.changeArticle = (req) => {
       return updatedArticle;
     });
 };
+
+exports.findAllArticles = () => {
+  return db
+    .query(
+      "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id;"
+    )
+    .then(({ rows: arrayOfArticles }) => {
+      return arrayOfArticles;
+    });
+};
