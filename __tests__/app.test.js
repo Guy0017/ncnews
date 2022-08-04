@@ -311,3 +311,74 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("status: 200 for valid request", () => {
+    return request(app).get("/api/articles/1/comments").expect(200);
+  });
+  test("returns object with key as description and value is an array of objects containing requested data", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .then(({ body }) => {
+        const arrayOfComments = body.comments;
+
+        expect(Array.isArray(arrayOfComments)).toBe(true);
+        expect(arrayOfComments.length).toBeGreaterThan(0);
+        expect(body).toBeInstanceOf(Object);
+
+        arrayOfComments.forEach((infoObj) => {
+          expect(infoObj).toBeInstanceOf(Object);
+        });
+      });
+  });
+
+  test("each object in the array contains the correct key and value type", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .then(({ body }) => {
+        const arrayOfComments = body.comments;
+
+        expect(arrayOfComments.length).toBeGreaterThan(0);
+
+        arrayOfComments.forEach((infoObj) => {
+          expect(infoObj).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("status: 400 for invalid article_id of 'not_an_id", () => {
+    return request(app)
+      .get("/api/articles/not_an_id/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 404, 'not found' for article_id that is valid but does not exists in database: article_id = 999", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id Not Found");
+      });
+  });
+  test("article_id that exists in databse but there is no data: article_id = 2. Expect user to be send empty array", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const emptyArray = body.comments;
+
+        expect(body).toBeInstanceOf(Object);
+        expect(Array.isArray(emptyArray)).toBe(true);
+        expect(emptyArray.length).toBe(0);
+        expect(emptyArray).toEqual([]);
+      });
+  });
+});
