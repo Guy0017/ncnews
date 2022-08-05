@@ -6,7 +6,10 @@ const {
   getAllArticles,
 } = require("./controller/article.controller");
 const { getUsers } = require("./controller/user.controller");
-const { getCommentsByArticleId } = require("./controller/comment.controller");
+const {
+  getCommentsByArticleId,
+  postCommentByArticleId,
+} = require("./controller/comment.controller");
 
 const app = express();
 app.use(express.json());
@@ -23,6 +26,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.patch("/api/articles/:article_id", updateArticle);
 
+app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
 });
@@ -38,3 +43,5 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
+
