@@ -14,7 +14,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   addCommentByArticleId(req)
     .then(([uploadedComment]) => {
-      res.status(201).send({ uploadedComment: uploadedComment });
+      res.status(201).send({ comments: uploadedComment });
     })
     .catch(next);
 };

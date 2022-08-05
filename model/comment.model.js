@@ -24,12 +24,18 @@ exports.addCommentByArticleId = (req) => {
   const { username: author } = req.body;
   const { article_id } = req.params;
 
-  return db
-    .query(
-      "INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING *;",
-      [body, author, article_id]
-    )
-    .then(({ rows: uploadedComment }) => {
-      return uploadedComment;
-    });
+  return checkArticleIdExists(article_id).then((checkArticleIdExists) => {
+    if (!checkArticleIdExists.length) {
+      return Promise.reject({ status: 404, msg: "article_id Not Found" });
+    } else {
+      return db
+        .query(
+          "INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING *;",
+          [body, author, article_id]
+        )
+        .then(({ rows: uploadedComment }) => {
+          return uploadedComment;
+        });
+    }
+  });
 };

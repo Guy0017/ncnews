@@ -405,7 +405,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(input)
       .then(({ body }) => {
-        const infoObj = body.uploadedComment;
+        console.log(body);
+        const infoObj = body.comments;
 
         expect(infoObj).toBeInstanceOf(Object);
         expect(body).toBeInstanceOf(Object);
@@ -421,7 +422,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(input)
       .then(({ body }) => {
-        const infoObj = body.uploadedComment;
+        const infoObj = body.comments;
 
         expect(infoObj).toEqual(
           expect.objectContaining({
@@ -446,10 +447,10 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  test("status: 400 and 'Bad Request' for incorrect keys and value type in request object", () => {
+  test("status: 400 and 'Bad Request' for incorrect key in request object", () => {
     const input = {
       usname: "icellusedkars",
-      bod: 2,
+      body: "Coding is like dreaming...",
     };
 
     return request(app)
@@ -457,6 +458,21 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 and 'Bad Request' for incorrect value type in request object", () => {
+    const input = {
+      username: 2,
+      body: "Coding is like dreaming...",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        console.log(body);
         expect(body.msg).toBe("Bad Request");
       });
   });
@@ -472,6 +488,32 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 for invalid article_id of 'not_an_id", () => {
+    const input = {
+      username: "icellusedkars",
+      body: "Coding is like dreaming...",
+    };
+    return request(app)
+      .post("/api/articles/not_an_id/comments")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 404, 'not found' for article_id that is valid but does not exists in database: article_id = 999", () => {
+    const input = {
+      username: "icellusedkars",
+      body: "Coding is like dreaming...",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(input)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id Not Found");
       });
   });
 });
