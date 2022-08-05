@@ -405,7 +405,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(input)
       .then(({ body }) => {
-        console.log(body);
         const infoObj = body.comments;
 
         expect(infoObj).toBeInstanceOf(Object);
@@ -472,7 +471,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        console.log(body);
         expect(body.msg).toBe("Bad Request");
       });
   });
