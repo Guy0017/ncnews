@@ -618,5 +618,38 @@ describe("/api/articles (queries)", () => {
         expect(Array.isArray(emptyArray)).toBe(true);
       });
   });
- 
+  test.only("status: 400 'sortBy' incorrectly spelt", () => {
+    return request(app)
+      .get("/api/articles?sortByy=article_id")
+      .expect(400)
+      .then(({ body }) => {
+
+        console.log(body)
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+    
+      });
+  });
+  test("status: 400 'topic' incorrectly spelt", () => {
+    return request(app)
+      .get("/api/articles?topicc=paper")
+      .expect(400)
+      .then(({ body }) => {
+
+        //console.log(body)
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+
+      });
+  });
+  test("status: 400 'order' incorrecly spelt", () => {
+    return request(app)
+      .get("/api/articles?orderr=paper")
+      .expect(400)
+      .then(({ body }) => {
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+
+      });
+  });
 });

@@ -62,6 +62,7 @@ app.all("*", (req, res) => {
 
 
 app.use((err, req, res, next) => {
+  console.log(err)
   if (err.msg && err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else next(err) })

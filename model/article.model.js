@@ -33,6 +33,7 @@ exports.changeArticle = (req) => {
 };
 
 exports.findAllArticles = (
+  req,
   sortBy = "created_at",
   topic = "",
   order = "DESC"
@@ -47,8 +48,36 @@ exports.findAllArticles = (
     "votes",
   ];
 
-  order = order.toUpperCase()
-  
+  const validQuery = ["sortBy", "topic", "order"];
+
+  const reqKeys = Object.keys(req.query);
+
+  order = order.toUpperCase();
+
+  if (reqKeys.length > 0) {
+    reqKeys.forEach((reqKey) => {
+   
+      if (!validQuery.includes(reqKey)) {
+        return Promise.reject({
+          status: 400,
+          msg: "Bad Request: Invalid Query",
+        });
+      }
+
+      if (reqKey === "sortBy") {
+        sortBy = req.query.sortBy;
+      }
+
+      if (reqKey === "topic") {
+        topic = req.query.topic;
+      }
+
+      if (reqKey === "order") {
+        order = req.query.order.toUpperCase();
+      }
+
+    });
+  }
 
   const validAscOrDesc = ["DESC", "ASC"];
 
@@ -77,7 +106,7 @@ exports.findAllArticles = (
         return Promise.reject({
           status: 400,
           msg: "Bad Request: Topic Does Not Exist",
-        })
+        });
       }
 
       return content[0].rows;
@@ -86,7 +115,7 @@ exports.findAllArticles = (
 
   return db.query(query, injectArr).then(({ rows: arrayOfArticles }) => {
     return arrayOfArticles;
-  })
+  });
 };
 
 exports.checkArticleIdExists = (id) => {
