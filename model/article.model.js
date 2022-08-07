@@ -54,14 +54,12 @@ exports.findAllArticles = (
 
   order = order.toUpperCase();
 
+  let reject = false;
+
   if (reqKeys.length > 0) {
     reqKeys.forEach((reqKey) => {
-   
       if (!validQuery.includes(reqKey)) {
-        return Promise.reject({
-          status: 400,
-          msg: "Bad Request: Invalid Query",
-        });
+        reject = true;
       }
 
       if (reqKey === "sortBy") {
@@ -75,14 +73,20 @@ exports.findAllArticles = (
       if (reqKey === "order") {
         order = req.query.order.toUpperCase();
       }
-
     });
+  }
+
+  if (reject === true) {
+    return Promise.reject({ status: 400, msg: "Bad Request: Invalid Query" });
   }
 
   const validAscOrDesc = ["DESC", "ASC"];
 
   if (!validSortBy.includes(sortBy) || !validAscOrDesc.includes(order)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Invalid Order/Sortby Query",
+    });
   }
 
   let query =

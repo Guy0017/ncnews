@@ -21,18 +21,9 @@ exports.updateArticle = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-
-  // const { sortBy } = req.query;
-  // const { topic } = req.query;
-  // const { order } = req.query;
-
   findAllArticles(req)
     .then((arrayOfArticles) => {
       res.status(200).send({ articles: arrayOfArticles });
     })
-    .catch((err) => {
-      console.log(err)
-      })
-
- 
+    .catch(next);
 };
