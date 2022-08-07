@@ -4,6 +4,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const data = require("../db/data/test-data/index");
 
+
 afterAll(() => db.end());
 beforeEach(() => seed(data));
 
@@ -512,6 +513,143 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id Not Found");
+      });
+  });
+});
+
+describe("/api/articles (queries)", () => {
+  test("filter topic and default to sort by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .then(({ body }) => {
+        const arrayOfArticles = body.articles;
+        
+        expect(arrayOfArticles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+
+        expect(arrayOfArticles.length).toBeGreaterThan(0);
+
+        arrayOfArticles.forEach((infoObj) => {
+          expect(infoObj).toEqual(
+            expect.objectContaining({
+              topic: "mitch",
+            })
+          );
+        });
+      });
+  });
+  test("filter topic in by ascending order using default sortby date. Lowercase 'asc' query will work", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=asc")
+      .then(({ body }) => {
+        const arrayOfArticles = body.articles;
+
+        expect(arrayOfArticles).toBeSortedBy("created_at", {
+          descending: false,
+        });
+
+        expect(arrayOfArticles.length).toBeGreaterThan(0);
+
+        arrayOfArticles.forEach((infoObj) => {
+          expect(infoObj).toEqual(
+            expect.objectContaining({
+              topic: "mitch",
+            })
+          );
+        });
+      });
+  });
+
+  test("sort by filter topic in ascending order by article id", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id")
+      .then(({ body }) => {
+        const arrayOfArticles = body.articles;
+
+        expect(arrayOfArticles).toBeSortedBy("article_id", {
+          descending: false,
+        });
+
+        expect(arrayOfArticles.length).toBeGreaterThan(0);
+
+        arrayOfArticles.forEach((infoObj) => {
+          expect(infoObj).toEqual(
+            expect.objectContaining({
+              topic: "mitch",
+            })
+          );
+        });
+      });
+  });
+  test("status: 400 and 'Bad Request' if invalid sortBy", () => {
+    return request(app)
+      .get("/api/articles?sortBy=INVALID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 and 'Bad Request' if invalid order (not 'DESC' or 'ASC')", () => {
+    return request(app)
+      .get("/api/articles?order=INVALID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("status: 400 and 'Bad Request: Topic Does Not Exist' if topic does not exist on article and topics database", () => {
+    return request(app)
+      .get("/api/articles?topic=DOESNOTEXIST")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Topic Does Not Exist");
+      });
+  });
+  test("status: 200 and returns empty array if topic exist in topics database but currently no articles with that topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        const emptyArray = body.articles;
+
+        expect(emptyArray).toEqual([]);
+        expect(emptyArray.length).toBe(0);
+        expect(Array.isArray(emptyArray)).toBe(true);
+      });
+  });
+  test.only("status: 400 'sortBy' incorrectly spelt", () => {
+    return request(app)
+      .get("/api/articles?sortByy=article_id")
+      .expect(400)
+      .then(({ body }) => {
+
+        console.log(body)
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+    
+      });
+  });
+  test("status: 400 'topic' incorrectly spelt", () => {
+    return request(app)
+      .get("/api/articles?topicc=paper")
+      .expect(400)
+      .then(({ body }) => {
+
+        //console.log(body)
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+
+      });
+  });
+  test("status: 400 'order' incorrecly spelt", () => {
+    return request(app)
+      .get("/api/articles?orderr=paper")
+      .expect(400)
+      .then(({ body }) => {
+
+        expect(body.msg).toBe('Bad Request: Invalid Query');
+
       });
   });
 });

@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { checkTopicExists } = require("../model/topic.model");
 
 exports.findArticle = (req) => {
   const { article_id: id } = req.params;
@@ -31,14 +32,90 @@ exports.changeArticle = (req) => {
     });
 };
 
-exports.findAllArticles = () => {
-  return db
-    .query(
-      "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;"
-    )
-    .then(({ rows: arrayOfArticles }) => {
-      return arrayOfArticles;
+exports.findAllArticles = (
+  req,
+  sortBy = "created_at",
+  topic = "",
+  order = "DESC"
+) => {
+  const validSortBy = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+  ];
+
+  const validQuery = ["sortBy", "topic", "order"];
+
+  const reqKeys = Object.keys(req.query);
+
+  order = order.toUpperCase();
+
+  if (reqKeys.length > 0) {
+    reqKeys.forEach((reqKey) => {
+   
+      if (!validQuery.includes(reqKey)) {
+        return Promise.reject({
+          status: 400,
+          msg: "Bad Request: Invalid Query",
+        });
+      }
+
+      if (reqKey === "sortBy") {
+        sortBy = req.query.sortBy;
+      }
+
+      if (reqKey === "topic") {
+        topic = req.query.topic;
+      }
+
+      if (reqKey === "order") {
+        order = req.query.order.toUpperCase();
+      }
+
     });
+  }
+
+  const validAscOrDesc = ["DESC", "ASC"];
+
+  if (!validSortBy.includes(sortBy) || !validAscOrDesc.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let query =
+    "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
+  const injectArr = [];
+
+  if (topic) {
+    query += "WHERE articles.topic = $1 ";
+    injectArr.push(topic);
+  }
+
+  query += "GROUP BY articles.article_id ";
+  query += `ORDER BY articles.${sortBy} ${order};`;
+
+  if (topic) {
+    return Promise.all([
+      db.query(query, injectArr),
+      checkTopicExists(topic),
+    ]).then((content) => {
+      if (content[1].length === 0) {
+        return Promise.reject({
+          status: 400,
+          msg: "Bad Request: Topic Does Not Exist",
+        });
+      }
+
+      return content[0].rows;
+    });
+  }
+
+  return db.query(query, injectArr).then(({ rows: arrayOfArticles }) => {
+    return arrayOfArticles;
+  });
 };
 
 exports.checkArticleIdExists = (id) => {
