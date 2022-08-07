@@ -582,20 +582,20 @@ describe("/api/articles (queries)", () => {
         });
       });
   });
-  test("status: 400 and 'Bad Request' if invalid sortBy", () => {
+  test("status: 400 and 'Bad Request: Invalid Order/Sortby Query' if invalid sortBy", () => {
     return request(app)
       .get("/api/articles?sortBy=INVALID")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Bad Request: Invalid Order/Sortby Query");
       });
   });
-  test("status: 400 and 'Bad Request' if invalid order (not 'DESC' or 'ASC')", () => {
+  test("status: 400 and 'Bad Request: Invalid Order/Sortby Query' if invalid order (not 'DESC' or 'ASC')", () => {
     return request(app)
       .get("/api/articles?order=INVALID")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Bad Request: Invalid Order/Sortby Query");
       });
   });
   test("status: 400 and 'Bad Request: Topic Does Not Exist' if topic does not exist on article and topics database", () => {
@@ -618,13 +618,11 @@ describe("/api/articles (queries)", () => {
         expect(Array.isArray(emptyArray)).toBe(true);
       });
   });
-  test.only("status: 400 'sortBy' incorrectly spelt", () => {
+  test("status: 400 'sortBy' incorrectly spelt", () => {
     return request(app)
       .get("/api/articles?sortByy=article_id")
       .expect(400)
       .then(({ body }) => {
-
-        console.log(body)
 
         expect(body.msg).toBe('Bad Request: Invalid Query');
     
@@ -635,8 +633,6 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?topicc=paper")
       .expect(400)
       .then(({ body }) => {
-
-        //console.log(body)
 
         expect(body.msg).toBe('Bad Request: Invalid Query');
 
