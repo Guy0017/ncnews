@@ -4,7 +4,6 @@ const app = require("../app");
 const db = require("../db/connection");
 const data = require("../db/data/test-data/index");
 
-
 afterAll(() => db.end());
 beforeEach(() => seed(data));
 
@@ -86,12 +85,12 @@ describe("GET /api/articles/:article_id", () => {
         );
       });
   });
-  test('status: 400 and "Bad Request" for not an ID', () => {
+  test('status: 400 and "Invalid Input" for not an ID', () => {
     return request(app)
       .get("/api/articles/not_an_ID")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
   test('status: 404 and "No Article With That ID" for valid ID but data does not exist', () => {
@@ -163,7 +162,7 @@ describe("PATCH /api/articles/:article_id", () => {
         );
       });
   });
-  test("status: 400 and 'Bad Request' for malformed request body", () => {
+  test("status: 400 and 'Invalid Input' for malformed request body", () => {
     const patch = {};
 
     return request(app)
@@ -171,10 +170,10 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(patch)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
-  test("status: 400 and 'Bad Request' for incorrect value type", () => {
+  test("status: 400 and 'Invalid Input' for incorrect value type", () => {
     const patch = {
       inc_votes: "notNumber",
     };
@@ -184,7 +183,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(patch)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
 });
@@ -358,7 +357,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/not_an_id/comments")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
   test("status: 404, 'not found' for article_id that is valid but does not exists in database: article_id = 999", () => {
@@ -436,7 +435,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         );
       });
   });
-  test("status: 400 and 'Bad Request' for malformed request object", () => {
+  test("status: 400 and 'Invalid Input' for malformed request object", () => {
     const input = {};
 
     return request(app)
@@ -444,10 +443,10 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
-  test("status: 400 and 'Bad Request' for incorrect key in request object", () => {
+  test("status: 400 and 'Invalid Input' for incorrect key in request object", () => {
     const input = {
       usname: "icellusedkars",
       body: "Coding is like dreaming...",
@@ -458,10 +457,10 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
-  test("status: 400 and 'Bad Request' for incorrect value type in request object", () => {
+  test("status: 400 and 'Invalid Input' for incorrect value type in request object", () => {
     const input = {
       username: 2,
       body: "Coding is like dreaming...",
@@ -472,10 +471,10 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
-  test("status: 400 and 'Bad Request' for username that does not appear in users database", () => {
+  test("status: 400 and 'Invalid Input' for username that does not appear in users database", () => {
     const input = {
       username: "NOT A USER",
       body: "NOT A USER",
@@ -486,7 +485,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
   test("status: 400 for invalid article_id of 'not_an_id", () => {
@@ -499,7 +498,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Invalid Input");
       });
   });
   test("status: 404, 'not found' for article_id that is valid but does not exists in database: article_id = 999", () => {
@@ -523,7 +522,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?topic=mitch")
       .then(({ body }) => {
         const arrayOfArticles = body.articles;
-        
+
         expect(arrayOfArticles).toBeSortedBy("created_at", {
           descending: true,
         });
@@ -623,9 +622,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?sortByy=article_id")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-    
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
   test("status: 400 'topic' incorrectly spelt", () => {
@@ -633,9 +630,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?topicc=paper")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
   test("status: 400 'order' incorrecly spelt", () => {
@@ -643,9 +638,35 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?orderr=paper")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("status: 204 and no content for valid delete request", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("status: 404 and not found content for id that does not exist", () => {
+    return request(app)
+      .delete("/api/comments/99999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("status: 400 and not found content for invalid ID", () => {
+    return request(app)
+      .delete("/api/comments/INVALID_ID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});
+
