@@ -4,7 +4,6 @@ const app = require("../app");
 const db = require("../db/connection");
 const data = require("../db/data/test-data/index");
 
-
 afterAll(() => db.end());
 beforeEach(() => seed(data));
 
@@ -523,7 +522,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?topic=mitch")
       .then(({ body }) => {
         const arrayOfArticles = body.articles;
-        
+
         expect(arrayOfArticles).toBeSortedBy("created_at", {
           descending: true,
         });
@@ -623,9 +622,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?sortByy=article_id")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-    
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
   test("status: 400 'topic' incorrectly spelt", () => {
@@ -633,9 +630,7 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?topicc=paper")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
   test("status: 400 'order' incorrecly spelt", () => {
@@ -643,9 +638,35 @@ describe("/api/articles (queries)", () => {
       .get("/api/articles?orderr=paper")
       .expect(400)
       .then(({ body }) => {
-
-        expect(body.msg).toBe('Bad Request: Invalid Query');
-
+        expect(body.msg).toBe("Bad Request: Invalid Query");
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("status: 204 and no content for valid delete request", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("status: 404 and not found content for id that does not exist", () => {
+    return request(app)
+      .delete("/api/comments/99999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("status: 400 and not found content for invalid ID", () => {
+    return request(app)
+      .delete("/api/comments/INVALID_ID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});
+
