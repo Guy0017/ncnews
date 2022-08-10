@@ -35,7 +35,7 @@ exports.changeArticle = (req) => {
 exports.findAllArticles = (
   req,
   sortBy = "created_at",
-  topic = "",
+  topic,
   order = "DESC"
 ) => {
   const validSortBy = [
@@ -49,17 +49,15 @@ exports.findAllArticles = (
   ];
 
   const validQuery = ["sortBy", "topic", "order"];
+  const validAscOrDesc = ["DESC", "ASC"];
+  const reqQueryKeys = Object.keys(req.query);
 
-  const reqKeys = Object.keys(req.query);
+  let invalidQuery = false;
 
-  order = order.toUpperCase();
-
-  let reject = false;
-
-  if (reqKeys.length > 0) {
-    reqKeys.forEach((reqKey) => {
+  if (reqQueryKeys) {
+    reqQueryKeys.forEach((reqKey) => {
       if (!validQuery.includes(reqKey)) {
-        reject = true;
+        invalidQuery = true;
       }
 
       if (reqKey === "sortBy") {
@@ -76,11 +74,9 @@ exports.findAllArticles = (
     });
   }
 
-  if (reject === true) {
+  if (invalidQuery) {
     return Promise.reject({ status: 400, msg: "Bad Request: Invalid Query" });
   }
-
-  const validAscOrDesc = ["DESC", "ASC"];
 
   if (!validSortBy.includes(sortBy) || !validAscOrDesc.includes(order)) {
     return Promise.reject({
@@ -89,35 +85,37 @@ exports.findAllArticles = (
     });
   }
 
-  let query =
+  let queryStr =
     "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
+
   const injectArr = [];
 
   if (topic) {
-    query += "WHERE articles.topic = $1 ";
+    queryStr += "WHERE articles.topic = $1 ";
     injectArr.push(topic);
   }
 
-  query += "GROUP BY articles.article_id ";
-  query += `ORDER BY articles.${sortBy} ${order};`;
+  queryStr += `GROUP BY articles.article_id ORDER BY articles.${sortBy} ${order};`;
 
   if (topic) {
     return Promise.all([
-      db.query(query, injectArr),
+      db.query(queryStr, injectArr),
       checkTopicExists(topic),
-    ]).then((content) => {
-      if (content[1].length === 0) {
+    ]).then((array) => {
+      if (array[1].length === 0) {
         return Promise.reject({
           status: 400,
           msg: "Bad Request: Topic Does Not Exist",
         });
       }
 
-      return content[0].rows;
+      const { rows: arrayOfArticles } = array[0]
+
+      return arrayOfArticles;
     });
   }
 
-  return db.query(query, injectArr).then(({ rows: arrayOfArticles }) => {
+  return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
     return arrayOfArticles;
   });
 };

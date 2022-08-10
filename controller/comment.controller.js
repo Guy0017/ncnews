@@ -14,7 +14,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
 
 exports.postCommentByArticleId = (req, res, next) => {
   addCommentByArticleId(req)
-    .then(([uploadedComment]) => {
+    .then((uploadedComment) => {
       res.status(201).send({ comments: uploadedComment });
     })
     .catch(next);
@@ -23,9 +23,7 @@ exports.postCommentByArticleId = (req, res, next) => {
 exports.deleteCommentByCommentId = (req, res, next) => {
   removeCommentByCommentId(req)
     .then(() => {
-      
-        res.sendStatus(204);
-      
+      res.sendStatus(204);
     })
     .catch(next);
 };

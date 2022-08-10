@@ -7,15 +7,15 @@ const {
 exports.getArticle = (req, res, next) => {
   findArticle(req)
     .then((article) => {
-      res.status(200).send({ article: article });
+      res.status(200).send({ articles: article });
     })
     .catch(next);
 };
 
 exports.updateArticle = (req, res, next) => {
   changeArticle(req)
-    .then(([updatedArticle]) => {
-      res.status(200).send({ updatedArticle: updatedArticle });
+    .then((updatedArticle) => {
+      res.status(200).send({ articles: updatedArticle });
     })
     .catch(next);
 };

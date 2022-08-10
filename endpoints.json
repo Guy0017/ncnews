@@ -6,7 +6,11 @@
     "description": "serves an array of all topics",
     "queries": [],
     "exampleResponse": {
-      "topics": [{ "slug": "football", "description": "Footie!" }]
+      "topics": [
+        { 
+          "slug": "football", "description": "Footie!" 
+        }
+      ]
     }
   },
   "GET /api/articles": {
@@ -15,13 +19,95 @@
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 3,
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
           "body": "Text from the article..",
-          "created_at": 1527695953341
+          "created_at": 1527695953341,
+          "votes": 0,
+          "comment_count": 2
         }
       ]
     }
+  },
+
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": {
+      "usersArray": [
+        {
+          "username": "joe321",
+          "name": "joe",
+          "avatar_url": "www.joeappleseed.com"
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an array with an article identified by article_id",
+    "exampleResponse": {
+      "article": [
+       {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": "2020-07-09T20:11:00.000Z",
+          "votes": 100,
+          "comment_count": 11
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves comments identified by article_id",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 2,
+          "body": "The beautiful thing...",
+          "article_id": 1,
+          "author": "butter_bridge",
+          "votes": 14,
+          "created_at": "2020-10-31T03:03:00.000Z"
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "up or downvote an article identified by article_id and serves an array of the updated article", 
+    "exampleResponse": {
+      "updatedArticle": [
+        {
+          "article_id": 2,
+          "title": "Sony Vaio; or, The Laptop",
+          "topic": "mitch",
+          "author": "icellusedkars",
+          "body": "Call me Mitchell...",
+          "created_at": "2020-10-16T05:03:00.000Z",
+          "votes": 1
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts comment to an article identified by article_id and responds with posted comment",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 19,
+          "body": "Coding is like dreaming...",
+          "article_id": 1,
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2022-08-09T20:05:23.448Z"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes comment identified by article_id and serves status 204 and no content"
   }
 }

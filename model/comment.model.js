@@ -49,7 +49,7 @@ exports.removeCommentByCommentId = (req) => {
     ])
     .then(({ rowCount }) => {
       if (rowCount === 0) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
-      } 
+        return Promise.reject({ status: 404, msg: "comment_id Not Found" });
+      }
     });
 };
