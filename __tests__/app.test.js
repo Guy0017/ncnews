@@ -699,4 +699,15 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
+// describe.only('/api endpoints', () => {
+//   test('returns status 200 and all endpoints', () => {
+//     return request(app)
+//     .get("/api")
+//     .expect(200)
+//     .then(({body}) => {
+//       console.log(body)
+//     })
+//   })
+// })
+
 //510

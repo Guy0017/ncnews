@@ -11,9 +11,12 @@ const {
   postCommentByArticleId,
   deleteCommentByCommentId,
 } = require("./controller/comment.controller");
+const { getEndpoints } = require("./controller/endpoint.controller");
 
 const app = express();
 app.use(express.json());
+
+//app.get("/api", getEndpoints);
 
 app.get("/api/topics", getTopics);
 
@@ -29,9 +32,7 @@ app.patch("/api/articles/:article_id", updateArticle);
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
-app.delete('/api/comments/:comment_id', deleteCommentByCommentId);
-
-
+app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
@@ -42,15 +43,15 @@ app.use((err, req, res, next) => {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => { 
   if (
-    err.code === "22P02" || 
-    err.code === "23502" || 
-    err.code === "42703" || 
-    err.code === "42601" || 
-    err.code === "42703" || 
-    err.code === '23503'
-    ) {
+    err.code === "22P02" ||
+    err.code === "23502" ||
+    err.code === "42703" ||
+    err.code === "42601" ||
+    err.code === "42703" ||
+    err.code === "23503"
+  ) {
     res.status(400).send({ msg: "Invalid Input" });
   } else next(err);
 });
