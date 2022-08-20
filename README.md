@@ -61,6 +61,7 @@ Code:
 $ npm install dotenv
 $ npm install express
 $ npm install pg
+$ npm install pg-format
 ```
 
 Developer:
@@ -68,7 +69,6 @@ Developer:
 ```bash
 $ npm install -D jest
 $ npm install -D jest-sorted
-$ npm install -D pg-format
 $ npm install -D supertest
 $ npm install -D husky (optional)
 ```
