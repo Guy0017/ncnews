@@ -47,13 +47,13 @@ Developer:
 - jest-sorted: v1.0.14
 - supertest: v6.2.4
 
-Once this respository is cloned, run the following terminal command to install all these listed dependencies which appear in the package.json file:
+After cloning this repository, run the following terminal command to install all these listed dependencies which appear in the package.json file:
 
 ```bash
 $ npm install
 ```
 
-Alternatively, install each packaged dependency with the terminal commands.
+Alternatively, install each npm packaged dependency individually with the following terminal commands.
 
 Code:
 
@@ -73,11 +73,11 @@ $ npm install -D supertest
 $ npm install -D husky (optional)
 ```
 
-The package.json script may need modification if different versions are installed.
+The package.json script may need modification if different versions are installed or if certain packages are omitted.
 
 ## 3. Create Database and Seeding
 
-This repository follows good security practices and will not contain the following files:
+In accordance with good security practices, this repository will not contain the following files:
 
 - .env.test
 - .env.development
@@ -95,7 +95,7 @@ The database names are contained within "./db/setup.sql":
 - nc_news_test (test database name)
 - nc_news (development database name)
 
-Run the following in the terminal to create and seed the database:
+Run the following in the terminal to create the database and then seed:
 
 ```bash
 $ npm run setup dbs
@@ -104,7 +104,7 @@ $ npm run seed
 
 ## 4. Tests
 
-Tests are written with jest, jest-sorted and supertest. They are located in the "./__tests__/ folder". Run tests with the following terminal command:
+Tests are written with jest, jest-sorted and supertest. These are located in the "./__tests__/" folder. Run tests with the following terminal command:
 
 ```bash
 $ npm test app.test.js
