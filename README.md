@@ -37,6 +37,7 @@ Code:
 - dotenv: v16.0.0
 - express: v4.18.1
 - pg: v.8.7.3
+- pg-format: 1.0.4
 
 Developer:
 
@@ -44,7 +45,6 @@ Developer:
 - jest: v.27.5.1
 - jest-extended: 2.0.0
 - jest-sorted: 1.0.14
-- pg-format: 1.0.4
 - supertest: 6.2.4
 
 Once this respository is cloned, run the following terminal command to install all these listed dependencies which appear in the package.json file:
