@@ -16,7 +16,7 @@ const { getEndpoints } = require("./controller/endpoint.controller");
 const app = express();
 app.use(express.json());
 
-//app.get("/api", getEndpoints);
+app.get("/api", getEndpoints);
 
 app.get("/api/topics", getTopics);
 
@@ -43,7 +43,7 @@ app.use((err, req, res, next) => {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });
-app.use((err, req, res, next) => { 
+app.use((err, req, res, next) => {
   if (
     err.code === "22P02" ||
     err.code === "23502" ||
@@ -56,8 +56,8 @@ app.use((err, req, res, next) => {
   } else next(err);
 });
 app.use((err, req, res, next) => {
-  console.log(err, "unhandled error");
-  res.status(500).send({ msg: "internal server error" });
+  console.log(err, "Unhandled Error");
+  res.status(500).send({ msg: "Internal Server Error" });
 });
 
 module.exports = app;
