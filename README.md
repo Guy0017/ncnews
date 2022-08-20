@@ -30,22 +30,22 @@ $ git clone <code_url>
 
 ## 2. Code and Developer Package Dependencies
 
-This backend was built using Node v.18.3.0 and PostgreSQL v 14.5 with the following code and developer package dependencies.
+This backend was built using Node v18.3.0 and PostgreSQL v14.5 with the following code and developer package dependencies.
 
 Code:
 
 - dotenv: v16.0.0
 - express: v4.18.1
-- pg: v.8.7.3
-- pg-format: 1.0.4
+- pg: v8.7.3
+- pg-format: v1.0.4
 
 Developer:
 
-- husky: v.7.0.0
-- jest: v.27.5.1
-- jest-extended: 2.0.0
-- jest-sorted: 1.0.14
-- supertest: 6.2.4
+- husky: v7.0.0
+- jest: v27.5.1
+- jest-extended: v2.0.0
+- jest-sorted: v1.0.14
+- supertest: v6.2.4
 
 Once this respository is cloned, run the following terminal command to install all these listed dependencies which appear in the package.json file:
 
@@ -104,7 +104,7 @@ $ npm run seed
 
 ## 4. Tests
 
-Tests are written with jest, jest-sorted and supertest. They are located in the "./**tests**/ folder". Run tests with the following terminal command:
+Tests are written with jest, jest-sorted and supertest. They are located in the "./__tests__/ folder". Run tests with the following terminal command:
 
 ```bash
 $ npm test app.test.js
