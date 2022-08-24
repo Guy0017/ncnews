@@ -46,6 +46,7 @@ exports.findAllArticles = (
     "body",
     "created_at",
     "votes",
+    "comment_count"
   ];
 
   const validQuery = ["sortBy", "topic", "order"];
