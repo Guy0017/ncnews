@@ -610,6 +610,26 @@ describe("/api/articles (queries)", () => {
         });
       });
   });
+  test("returns data filtered by topic and sorted by comment_count in ascending order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=comment_count")
+      .then(({ body }) => { 
+        const arrayOfArticles = body.articles;
+
+        expect(arrayOfArticles).toBeSortedBy("comment_count", {
+          descending: false,
+        });
+        expect(arrayOfArticles.length).toBeGreaterThan(0);
+
+        arrayOfArticles.forEach((dataObj) => {
+          expect(dataObj).toEqual(
+            expect.objectContaining({
+              topic: "mitch",
+            })
+          );
+        });
+      });
+  });
   test("returns status 400 and 'Bad Request: Invalid Order/Sortby Query' if invalid sortBy", () => {
     return request(app)
       .get("/api/articles?sortBy=INVALID")

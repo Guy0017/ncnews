@@ -45,7 +45,7 @@ app.use((err, req, res, next) => {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => { 
   if (
     err.code === "22P02" ||
     err.code === "23502" ||

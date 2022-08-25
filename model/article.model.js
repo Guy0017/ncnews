@@ -96,8 +96,8 @@ exports.findAllArticles = (
     injectArr.push(topic);
   }
 
-  queryStr += `GROUP BY articles.article_id ORDER BY articles.${sortBy} ${order};`;
-
+  queryStr += `GROUP BY articles.article_id ORDER BY ${sortBy} ${order};`;
+  
   if (topic) {
     return Promise.all([
       db.query(queryStr, injectArr),
@@ -114,7 +114,7 @@ exports.findAllArticles = (
 
       return arrayOfArticles;
     });
-  }
+  } 
 
   return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
     return arrayOfArticles;
