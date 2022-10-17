@@ -11,7 +11,7 @@ describe("GET /api/topics", () => {
   test("returns status 200 for valid request", () => {
     return request(app).get("/api/topics").expect(200);
   });
-  test("returns an object with a key describing the data. The value is an array of objects containing the requested data", () => {
+  test("returns an object with a key describing the data. The value is an array of data objects containing the requested data", () => {
     return request(app)
       .get("/api/topics")
       .then(({ body }) => {
@@ -58,7 +58,7 @@ describe("GET /api/articles/:article_id", () => {
   test("returns status 200 for valid request (article_id = 1)", () => {
     return request(app).get("/api/articles/1").expect(200);
   });
-  test("returns object with a key describing the data. The value is an array containing an object with the requested data for a valid request", () => {
+  test("returns object with a key describing the data. The value is an array containing the data object with the requested data for a valid request", () => {
     return request(app)
       .get("/api/articles/1")
       .then(({ body }) => {
@@ -70,7 +70,7 @@ describe("GET /api/articles/:article_id", () => {
         expect(dataObj).toBeInstanceOf(Object);
       });
   });
-  test("object with requested data contains correct keys and value types for a valid request", () => {
+  test("data object contains correct keys and value types for a valid request", () => {
     return request(app)
       .get("/api/articles/1")
       .then(({ body }) => {
@@ -115,7 +115,7 @@ describe("PATCH /api/articles/:article_id", () => {
 
     return request(app).patch("/api/articles/2").send(patch).expect(200);
   });
-  test("returns an object with a key describing the data requested. The value is an array containing an object with data of the updated article", () => {
+  test("returns an object with a key describing the data requested. The value is an array containing data object with data of the updated article", () => {
     const patch = {
       inc_votes: 1,
     };
@@ -221,7 +221,7 @@ describe("GET /api/users", () => {
   test("returns status 200 for a valid request", () => {
     return request(app).get("/api/topics").expect(200);
   });
-  test("returns an object with a key describing the data. The value is an array of objects containing the requested data", () => {
+  test("returns an object with a key describing the data. The value is an array of data objects containing the requested data", () => {
     return request(app)
       .get("/api/users")
       .then(({ body }) => {
@@ -236,7 +236,7 @@ describe("GET /api/users", () => {
         });
       });
   });
-  test("each object contains the correct keys and string as their values", () => {
+  test("each data object contains the correct keys and string as their values", () => {
     return request(app)
       .get("/api/users")
       .then(({ body }) => {
@@ -295,7 +295,7 @@ describe("GET /api/articles", () => {
   test("status: 200", () => {
     return request(app).get("/api/articles").expect(200);
   });
-  test("returns an object with a key describing the data. The value is an array of objects containing the requested data", () => {
+  test("returns an object with a key describing the data. The value is an array of data objects containing the requested data", () => {
     return request(app)
       .get("/api/articles")
       .then(({ body }) => {
@@ -310,7 +310,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("each object contains the correct keys and expected value types", () => {
+  test("each data object contains the correct keys and expected value types", () => {
     return request(app)
       .get("/api/articles")
       .then(({ body }) => {
@@ -333,7 +333,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("the array of objects is sorted by article creation date by default", () => {
+  test("the array of data objects is sorted by article creation date by default", () => {
     return request(app)
       .get("/api/articles")
       .then(({ body }) => {
@@ -348,7 +348,7 @@ describe("GET /api/articles/:article_id/comments", () => {
   test("returns status 200 for valid request", () => {
     return request(app).get("/api/articles/1/comments").expect(200);
   });
-  test("returns object with a key describing the data. The value is an array of objects containing the requested data", () => {
+  test("returns object with a key describing the data. The value is an array of data objects containing the requested data", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .then(({ body }) => {
@@ -363,7 +363,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("each object contains the correct keys and value types", () => {
+  test("each data object contains the correct keys and value types", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .then(({ body }) => {
@@ -426,7 +426,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(input)
       .expect(201);
   });
-  test("returns an object with a key describing the requested data. The value is an array containing the object with the requested data", () => {
+  test("returns an object with a key describing the requested data. The value is an array containing the data object with the requested data", () => {
     const input = {
       username: "icellusedkars",
       body: "Coding is like dreaming...",
@@ -443,7 +443,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body).toBeInstanceOf(Object);
       });
   });
-  test("the object contains the correct keys and value types", () => {
+  test("the data object contains the correct keys and value types", () => {
     const input = {
       username: "icellusedkars",
       body: "Coding is like dreaming...",
