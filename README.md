@@ -2,9 +2,9 @@
 
 ## About
 
-This is a backend news API project. It is hosted at Heroku:
+This is a backend news API project. It is hosted at ElephantSQL(database) and Cyclic(API):
 
-https://ncnews-guy.herokuapp.com/api/topics
+https://ncnews-guy.cyclic.app/api
 
 It allows for the following functionality:
 
