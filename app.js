@@ -5,7 +5,7 @@ const {
   updateArticle,
   getAllArticles,
 } = require("./controller/article.controller");
-const { getUsers } = require("./controller/user.controller");
+const { getUsers, getUser } = require("./controller/user.controller");
 const {
   getCommentsByArticleId,
   postCommentByArticleId,
@@ -29,6 +29,8 @@ app.get("/api/users", getUsers);
 app.get("/api/articles", getAllArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.get("/api/users/:username", getUser);
 
 app.patch("/api/articles/:article_id", updateArticle);
 
