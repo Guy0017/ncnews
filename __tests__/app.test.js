@@ -767,3 +767,112 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("returns status 200 for valid request", () => {
+    const patch = {
+      inc_votes: 1,
+    };
+
+    return request(app).patch("/api/comments/1").send(patch).expect(200);
+  });
+  test("returns an object with a key describing the data requested. The value is an array containing data object with data of the updated comment", () => {
+    const patch = {
+      inc_votes: 1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .then(({ body }) => {
+        const arrayHoldingObj = body.comments;
+
+        expect(body).toBeInstanceOf(Object);
+        expect(Array.isArray(arrayHoldingObj)).toBe(true);
+        expect(arrayHoldingObj[0]).toBeInstanceOf(Object);
+      });
+  });
+  test("the updated object contains the correct keys and value types", () => {
+    const patch = {
+      inc_votes: 1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .then(({ body }) => {
+        const dataObj = body.comments[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 17,
+            created_at: "2020-04-06T12:17:00.000Z",
+          })
+        );
+      });
+  });
+  test("votes are incremented by the request body", () => {
+    const patch = {
+      inc_votes: 1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .then(({ body }) => {
+        const dataObj = body.comments[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            votes: 17,
+          })
+        );
+      });
+  });
+  test("votes are decremented by the request body", () => {
+    const patch = {
+      inc_votes: -1,
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .then(({ body }) => {
+        const dataObj = body.comments[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            votes: 15,
+          })
+        );
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for malformed request body", () => {
+    const patch = {};
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for incorrect value type", () => {
+    const patch = {
+      inc_votes: "notNumber",
+    };
+
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patch)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});

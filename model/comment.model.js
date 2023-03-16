@@ -53,3 +53,17 @@ exports.removeCommentByCommentId = (req) => {
       }
     });
 };
+
+exports.changeComment = (req) => {
+  const { comment_id: id } = req.params;
+  const { inc_votes: votes } = req.body;
+
+  return db
+    .query(
+      "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
+      [votes, id]
+    )
+    .then(({ rows: updatedComment }) => {
+      return updatedComment;
+    });
+};
