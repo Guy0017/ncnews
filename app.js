@@ -10,6 +10,7 @@ const {
   getCommentsByArticleId,
   postCommentByArticleId,
   deleteCommentByCommentId,
+  updateComment,
 } = require("./controller/comment.controller");
 const { getEndpoints } = require("./controller/endpoint.controller");
 const cors = require('cors');
@@ -33,6 +34,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api/users/:username", getUser);
 
 app.patch("/api/articles/:article_id", updateArticle);
+
+app.patch("/api/comments/:comment_id", updateComment);
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
