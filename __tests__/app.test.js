@@ -876,3 +876,140 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("POST /api/articles", () => {
+  test("returns status 200 for a valid request", () => {
+    const input = {
+      author: "icellusedkars",
+      title: "POST /API/ARTICLES",
+      body: "Success!",
+      topic: "mitch",
+    };
+
+    return request(app).post("/api/articles").send(input).expect(201);
+  });
+  test("returns an object with a key describing the requested data. The value is an array containing the data object with the requested data", () => {
+    const input = {
+      author: "icellusedkars",
+      title: "POST /API/ARTICLES",
+      body: "Success!",
+      topic: "mitch",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(201)
+      .then(({ body }) => {
+        const dataObj = body.articles[0];
+
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(dataObj).toBeInstanceOf(Object);
+        expect(body).toBeInstanceOf(Object);
+      });
+  });
+  test("the data object contains the correct keys and value types and returns correct uploaded article", () => {
+    const input = {
+      author: "icellusedkars",
+      title: "POST /API/ARTICLES",
+      body: "Success!",
+      topic: "mitch",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(201)
+      .then(({ body }) => {
+        const dataObj = body.articles[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            article_id: 13,
+            title: "POST /API/ARTICLES",
+            topic: "mitch",
+            author: "icellusedkars",
+            body: "Success!",
+            created_at: expect.any(String),
+            votes: 0,
+            comment_count: 0,
+          })
+        );
+
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(dataObj).toBeInstanceOf(Object);
+        expect(body).toBeInstanceOf(Object);
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for a malformed request body", () => {
+    const input = {};
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for incorrect key in request body", () => {
+    const input = { invalid: "invalid" };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for incorrect value type in request body", () => {
+    const input = {
+      author: 2,
+      title: 2,
+      body: 2,
+      topic: 2,
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for username that does not exist in users database", () => {
+    const input = {
+      author: "invalidUser",
+      title: "POST /API/ARTICLES",
+      body: "Success!",
+      topic: "mitch",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for topic that does not exist in topics database", () => {
+    const input = {
+      author: "icellusedkars",
+      title: "POST /API/ARTICLES",
+      body: "Success!",
+      topic: "invalid",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});
+

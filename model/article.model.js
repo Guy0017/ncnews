@@ -46,7 +46,7 @@ exports.findAllArticles = (
     "body",
     "created_at",
     "votes",
-    "comment_count"
+    "comment_count",
   ];
 
   const validQuery = ["sortBy", "topic", "order"];
@@ -97,7 +97,7 @@ exports.findAllArticles = (
   }
 
   queryStr += `GROUP BY articles.article_id ORDER BY ${sortBy} ${order};`;
-  
+
   if (topic) {
     return Promise.all([
       db.query(queryStr, injectArr),
@@ -110,15 +110,35 @@ exports.findAllArticles = (
         });
       }
 
-      const { rows: arrayOfArticles } = array[0]
+      const { rows: arrayOfArticles } = array[0];
 
       return arrayOfArticles;
     });
-  } 
+  }
 
   return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
     return arrayOfArticles;
   });
+};
+
+exports.addCommentByUsername = (req) => {
+  const { title, topic, author, body } = req.body;
+
+  return db
+    .query(
+      "INSERT INTO articles (title, topic, author, body) VALUES ($1, $2, $3, $4) RETURNING *;",
+      [title, topic, author, body]
+    )
+    .then(({ rows: uploadedArticle }) => {
+      return db
+        .query(
+          "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;",
+          [uploadedArticle[0].article_id]
+        )
+        .then(({ rows: uploadedArticle }) => {
+          return uploadedArticle;
+        });
+    });
 };
 
 exports.checkArticleIdExists = (id) => {
