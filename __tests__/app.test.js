@@ -613,7 +613,7 @@ describe("/api/articles (queries)", () => {
   test("returns data filtered by topic and sorted by comment_count in ascending order", () => {
     return request(app)
       .get("/api/articles?topic=mitch&&order=ASC&&sortBy=comment_count")
-      .then(({ body }) => { 
+      .then(({ body }) => {
         const arrayOfArticles = body.articles;
 
         expect(arrayOfArticles).toBeSortedBy("comment_count", {
@@ -722,5 +722,48 @@ describe("DELETE /api/comments/:comment_id", () => {
 describe("/api endpoints", () => {
   test("returns status 200 and all endpoints", () => {
     return request(app).get("/api").expect(200);
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("returns status 200", () => {
+    return request(app).get("/api/users/rogersop").expect(200);
+  });
+  test("returns object with a key describing the data. The value is an array containing the data object with the requested data for a valid request", () => {
+    return request(app)
+      .get("/api/users/rogersop")
+      .expect(200)
+      .then(({ body }) => {
+        const arrayHoldingObj = body.users;
+        const dataObj = body.users[0];
+
+        expect(body).toBeInstanceOf(Object);
+        expect(Array.isArray(arrayHoldingObj)).toBe(true);
+        expect(dataObj).toBeInstanceOf(Object);
+      });
+  });
+  test("data object contains correct keys and value types for a valid request", () => {
+    return request(app)
+      .get("/api/users/rogersop")
+      .then(({ body }) => {
+        const dataObj = body.users[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            avatar_url:
+              "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+            name: "paul",
+            username: "rogersop",
+          })
+        );
+      });
+  });
+  test('returns status 404 and "User Not Found" for username that does not exist', () => {
+    return request(app)
+      .get("/api/users/invalidUsername")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User Not Found");
+      });
   });
 });
