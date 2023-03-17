@@ -1162,4 +1162,165 @@ describe("Pagination for GET /api/articles", () => {
         expect(numberOfArticles).toBe(10);
       });
   });
+  test("response contains total_count property", () => {
+    return request(app)
+      .get("/api/articles?limit=100")
+      .then(({ body }) => {
+        const arrayOfArticles = body.articles;
+
+        arrayOfArticles.forEach((dataObj) => {
+          expect(dataObj).toEqual(
+            expect.objectContaining({
+              total_count: 12,
+            })
+          );
+        });
+      });
+  });
+});
+
+describe("Pagination for /api/articles/:article_id/comments", () => {
+  test("queries with 'limit' and 'p' used to calculate pagination", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&&p=1")
+      .expect(200)
+      .then(({ body }) => {
+        const numberOfComments = body.comments.length;
+
+        expect(numberOfComments).toBe(3);
+      });
+  });
+  test("default limit is 10", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=1")
+      .then(({ body }) => {
+        const numberOfComments = body.comments.length;
+
+        expect(numberOfComments).toBe(10);
+      });
+  });
+  test("responds to page numbers", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&&p=2")
+      .then(({ body }) => {
+        const arrayOfObj = body.comments;
+        const page2Comments = [
+          "I hate streaming noses",
+          "I hate streaming eyes even more",
+          "Lobster pot",
+        ];
+        let isCorrect = true;
+
+        expect(arrayOfObj.length).toBe(3);
+
+        arrayOfObj.forEach((obj) => {
+          if (!page2Comments.includes(obj.body)) {
+            isCorrect = false;
+          }
+        });
+
+        expect(isCorrect).toBe(true);
+      });
+  });
+  test("responds correctly on page 2 where results is less than limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=2")
+      .then(({ body }) => {
+        const arrayOfObj = body.comments;
+
+        expect(arrayOfObj.length).toBe(1);
+      });
+  });
+  test("default p value is 0", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .then(({ body }) => {
+        const numberOfComments = body.comments.length;
+        const firstComment = body.comments[0].body;
+        const correctFirstComment =
+          "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.";
+
+        expect(numberOfComments).toBe(10);
+        expect(firstComment).toBe(correctFirstComment);
+      });
+  });
+  test("error 404 message when value of p exceeds number of database items", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=5")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("error 400 message when p is negative number", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=-1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when p is a string", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=NOTNUMBER")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when p is NaN", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10&&p=NaN")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is a string", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=NOTNUMBER")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is negative number", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=-20")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is 0", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=0")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is NaN", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=NaN")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("response contains total_count property", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=100")
+      .then(({ body }) => {
+        const arrayOfComments = body.comments;
+
+        arrayOfComments.forEach((dataObj) => {
+          expect(dataObj).toEqual(
+            expect.objectContaining({
+              total_count: 11,
+            })
+          );
+        });
+      });
+  });
 });

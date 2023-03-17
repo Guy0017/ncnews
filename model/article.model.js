@@ -41,8 +41,8 @@ exports.findAllArticles = (req) => {
   order = order ? order.toUpperCase() : "DESC";
   limit ??= 10;
 
-  const firstIndex = p ? (p - 1) * limit : 0;
-  const lastIndex = p ? p * limit : limit;
+  const firstIndex = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
+  const lastIndex = p ? parseInt(p) * parseInt(limit) : parseInt(limit);
 
   // Validation lists for sanitising request. AMEND to add functionality
 
