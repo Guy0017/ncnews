@@ -3,6 +3,26 @@ const { checkArticleIdExists } = require("./article.model");
 
 exports.findCommentsByArticleId = (req) => {
   const { article_id: id } = req.params;
+  let { limit, p } = req.query;
+
+  limit ??= 10;
+
+  const firstIndex = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
+  const lastIndex = p ? parseInt(p) * parseInt(limit) : parseInt(limit);
+
+  if (
+    firstIndex < 0 ||
+    typeof firstIndex !== "number" ||
+    (firstIndex !== 0 && !firstIndex) ||
+    lastIndex < 1 ||
+    typeof lastIndex !== "number" ||
+    (lastIndex !== 0 && !lastIndex)
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Invalid Query",
+    });
+  }
 
   const promise = db.query("SELECT * FROM comments WHERE article_id = $1", [
     id,
@@ -14,8 +34,22 @@ exports.findCommentsByArticleId = (req) => {
     }
 
     const { rows: arrayOfComments } = content[1];
+    const total_count = arrayOfComments.length;
 
-    return arrayOfComments;
+    arrayOfComments.map((comment) => {
+      comment.total_count = total_count;
+    });
+
+    const paginatedComments = arrayOfComments.slice(firstIndex, lastIndex);
+
+    if (firstIndex > total_count) {
+      return Promise.reject({
+        status: 404,
+        msg: "Not Found",
+      });
+    }
+
+    return paginatedComments;
   });
 };
 
