@@ -32,12 +32,20 @@ exports.changeArticle = (req) => {
     });
 };
 
-exports.findAllArticles = (
-  req,
-  sortBy = "created_at",
-  topic,
-  order = "DESC"
-) => {
+exports.findAllArticles = (req) => {
+  // Destructure and assign default values
+
+  let { sortBy, topic, order, limit, p } = req.query;
+
+  sortBy ??= "created_at";
+  order = order ? order.toUpperCase() : "DESC";
+  limit ??= 10;
+
+  const firstIndex = p ? (p - 1) * limit : 0;
+  const lastIndex = p ? p * limit : limit;
+
+  // Validation lists for sanitising request. AMEND to add functionality
+
   const validSortBy = [
     "article_id",
     "title",
@@ -49,8 +57,11 @@ exports.findAllArticles = (
     "comment_count",
   ];
 
-  const validQuery = ["sortBy", "topic", "order"];
+  const validQuery = ["sortBy", "topic", "order", "limit", "p"];
   const validAscOrDesc = ["DESC", "ASC"];
+
+  // Sanitise query elements against validation lists
+
   const reqQueryKeys = Object.keys(req.query);
 
   let invalidQuery = false;
@@ -60,19 +71,18 @@ exports.findAllArticles = (
       if (!validQuery.includes(reqKey)) {
         invalidQuery = true;
       }
-
-      if (reqKey === "sortBy") {
-        sortBy = req.query.sortBy;
-      }
-
-      if (reqKey === "topic") {
-        topic = req.query.topic;
-      }
-
-      if (reqKey === "order") {
-        order = req.query.order.toUpperCase();
-      }
     });
+  }
+
+  if (
+    firstIndex < 0 ||
+    typeof firstIndex !== "number" ||
+    (firstIndex !== 0 && !firstIndex) ||
+    lastIndex < 1 ||
+    typeof lastIndex !== "number" ||
+    (lastIndex !== 0 && !lastIndex)
+  ) {
+    invalidQuery = true;
   }
 
   if (invalidQuery) {
@@ -86,6 +96,8 @@ exports.findAllArticles = (
     });
   }
 
+  // Concatinate database query string
+
   let queryStr =
     "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
 
@@ -97,6 +109,8 @@ exports.findAllArticles = (
   }
 
   queryStr += `GROUP BY articles.article_id ORDER BY ${sortBy} ${order};`;
+
+  // execute promises: 2 routes, one for if topic is present, the other for when no topic is present
 
   if (topic) {
     return Promise.all([
@@ -111,13 +125,45 @@ exports.findAllArticles = (
       }
 
       const { rows: arrayOfArticles } = array[0];
+      const total_count = arrayOfArticles.length;
 
-      return arrayOfArticles;
+      // paginate
+
+      arrayOfArticles.map((article) => {
+        article.total_count = total_count;
+      });
+
+      const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
+
+      if (firstIndex > total_count) {
+        return Promise.reject({
+          status: 404,
+          msg: "Not Found",
+        });
+      }
+
+      return paginatedArticles;
     });
   }
 
+  // No topic promise starts here
+
   return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
-    return arrayOfArticles;
+    const total_count = arrayOfArticles.length;
+
+    arrayOfArticles.map((article) => {
+      article.total_count = total_count;
+    });
+
+    const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
+
+    if (firstIndex > total_count) {
+      return Promise.reject({
+        status: 404,
+        msg: "Not Found",
+      });
+    }
+    return paginatedArticles;
   });
 };
 
