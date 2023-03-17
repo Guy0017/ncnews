@@ -1013,3 +1013,153 @@ describe("POST /api/articles", () => {
   });
 });
 
+describe("Pagination for GET /api/articles", () => {
+  test("queries with 'limit' and 'p' used to calculate pagination", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=3&&p=1"
+      )
+      .expect(200)
+      .then(({ body }) => {
+        const numberOfArticles = body.articles.length;
+
+        expect(numberOfArticles).toBe(3);
+      });
+  });
+  test("default limit is 10", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&p=1")
+      .then(({ body }) => {
+        const numberOfArticles = body.articles.length;
+
+        expect(numberOfArticles).toBe(10);
+      });
+  });
+  test("responds to page numbers", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=3&&p=2"
+      )
+      .then(({ body }) => {
+        const arrayOfObj = body.articles;
+        const page2Titles = ["Student SUES Mitch!", "A", "Z"];
+        let isCorrect = true;
+
+        expect(arrayOfObj.length).toBe(3);
+
+        arrayOfObj.forEach((obj) => {
+          if (!page2Titles.includes(obj.title)) {
+            isCorrect = false;
+          }
+        });
+
+        expect(isCorrect).toBe(true);
+      });
+  });
+  test("responds correctly on page 2 where results is less than limit", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=10&&p=2"
+      )
+      .then(({ body }) => {
+        const arrayOfObj = body.articles;
+
+        expect(arrayOfObj.length).toBe(1);
+      });
+  });
+  test("default p value is 0", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id")
+      .then(({ body }) => {
+        const numberOfArticles = body.articles.length;
+        const firstArticleTitle = body.articles[0].title;
+        const correctFirstTitle = "Living in the shadow of a great man";
+
+        expect(numberOfArticles).toBe(10);
+        expect(firstArticleTitle).toBe(correctFirstTitle);
+      });
+  });
+  test("error 404 message when value of p exceeds number of database items", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=10&&p=5"
+      )
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("error 400 message when p is negative number", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=10&&p=-1"
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when p is a string", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=10&&p=NOTNUMBER"
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when p is NaN", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=10&&p=NaN"
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is a string", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=NOTNUMBER"
+      )
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is negative number", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=-20")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is 0", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=0")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("error 400 message when limit is NaN", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&&order=ASC&&sortBy=article_id&&limit=NaN")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request: Invalid Query");
+      });
+  });
+  test("returns correctly with no topic and defaults in query", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body }) => {
+        const numberOfArticles = body.articles.length;
+
+        expect(numberOfArticles).toBe(10);
+      });
+  });
+});
