@@ -1324,3 +1324,104 @@ describe("Pagination for /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  test("returns status 201 for a valid post request", () => {
+    const input = {
+      slug: "topic name here",
+      description: "description here",
+    };
+
+    return request(app).post("/api/topics").send(input).expect(201);
+  });
+  test("returns an object with a key describing the requested data. The value is an array containing the data object with the requested data", () => {
+    const input = {
+      slug: "topic name here",
+      description: "description here",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .then(({ body }) => {
+        const dataObj = body.topics[0];
+
+        expect(Array.isArray(body.topics)).toBe(true);
+        expect(dataObj).toBeInstanceOf(Object);
+        expect(body).toBeInstanceOf(Object);
+      });
+  });
+  test("the data object contains the correct keys and value types", () => {
+    const input = {
+      slug: "topic name here",
+      description: "description here",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .then(({ body }) => {
+        const dataObj = body.topics[0];
+
+        expect(dataObj).toEqual(
+          expect.objectContaining({
+            slug: "topic name here",
+            description: "description here",
+          })
+        );
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for a malformed request body", () => {
+    const input = {};
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for incorrect key in request body", () => {
+    const input = {
+      INVALID: "topic name here",
+      description: "description here",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for incorrect value type in request body", () => {
+    const input = {
+      slug: 2,
+      description: 2,
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+  test("returns status 400 and 'Invalid Input' for slug that already exists in topics database", () => {
+    const input = {
+      slug: "mitch",
+      description: "description here",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(input)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});

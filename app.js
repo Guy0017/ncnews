@@ -1,5 +1,5 @@
 const express = require("express");
-const { getTopics } = require("./controller/topic.controller");
+const { getTopics, postTopic } = require("./controller/topic.controller");
 const {
   getArticle,
   updateArticle,
@@ -14,11 +14,11 @@ const {
   updateComment,
 } = require("./controller/comment.controller");
 const { getEndpoints } = require("./controller/endpoint.controller");
-const cors = require('cors');
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 
 app.get("/api", getEndpoints);
 
@@ -42,6 +42,8 @@ app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 app.post("/api/articles", postArticleByUsername);
 
+app.post("/api/topics", postTopic);
+
 app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
 
 app.all("*", (req, res) => {
@@ -53,14 +55,15 @@ app.use((err, req, res, next) => {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });
-app.use((err, req, res, next) => { 
+app.use((err, req, res, next) => {
   if (
     err.code === "22P02" ||
     err.code === "23502" ||
     err.code === "42703" ||
     err.code === "42601" ||
     err.code === "42703" ||
-    err.code === "23503"
+    err.code === "23503" ||
+    err.code === "23505"
   ) {
     res.status(400).send({ msg: "Invalid Input" });
   } else next(err);
