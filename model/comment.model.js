@@ -53,6 +53,20 @@ exports.findCommentsByArticleId = (req) => {
   });
 };
 
+exports.changeComment = (req) => {
+  const { comment_id: id } = req.params;
+  const { inc_votes: votes } = req.body;
+
+  return db
+    .query(
+      "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
+      [votes, id]
+    )
+    .then(({ rows: updatedComment }) => {
+      return updatedComment;
+    });
+};
+
 exports.addCommentByArticleId = (req) => {
   const { body } = req.body;
   const { username: author } = req.body;
@@ -85,19 +99,5 @@ exports.removeCommentByCommentId = (req) => {
       if (rowCount === 0) {
         return Promise.reject({ status: 404, msg: "comment_id Not Found" });
       }
-    });
-};
-
-exports.changeComment = (req) => {
-  const { comment_id: id } = req.params;
-  const { inc_votes: votes } = req.body;
-
-  return db
-    .query(
-      "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
-      [votes, id]
-    )
-    .then(({ rows: updatedComment }) => {
-      return updatedComment;
     });
 };

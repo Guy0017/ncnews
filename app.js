@@ -5,6 +5,7 @@ const {
   updateArticle,
   getAllArticles,
   postArticleByUsername,
+  deleteArticleByArticleId,
 } = require("./controller/article.controller");
 const { getUsers, getUser } = require("./controller/user.controller");
 const {
@@ -45,6 +46,8 @@ app.post("/api/articles", postArticleByUsername);
 app.post("/api/topics", postTopic);
 
 app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
+
+app.delete("/api/articles/:article_id", deleteArticleByArticleId);
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });

@@ -18,20 +18,6 @@ exports.findArticle = (req) => {
     });
 };
 
-exports.changeArticle = (req) => {
-  const { article_id: id } = req.params;
-  const { inc_votes: votes } = req.body;
-
-  return db
-    .query(
-      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;",
-      [votes, id]
-    )
-    .then(({ rows: updatedArticle }) => {
-      return updatedArticle;
-    });
-};
-
 exports.findAllArticles = (req) => {
   // Destructure and assign default values
 
@@ -167,7 +153,21 @@ exports.findAllArticles = (req) => {
   });
 };
 
-exports.addCommentByUsername = (req) => {
+exports.changeArticle = (req) => {
+  const { article_id: id } = req.params;
+  const { inc_votes: votes } = req.body;
+
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;",
+      [votes, id]
+    )
+    .then(({ rows: updatedArticle }) => {
+      return updatedArticle;
+    });
+};
+
+exports.addArticleByUsername = (req) => {
   const { title, topic, author, body } = req.body;
 
   return db
@@ -192,5 +192,28 @@ exports.checkArticleIdExists = (id) => {
     .query("SELECT * FROM articles WHERE article_id = $1", [id])
     .then(({ rows: checkExist }) => {
       return checkExist;
+    });
+};
+
+exports.removeArticleByArticleId = (req) => {
+  const { article_id } = req.params;
+
+  // Must delete comments first which have article_id as Foreign Key before article can be deleted
+
+  return db
+    .query("DELETE FROM comments WHERE article_id = $1 RETURNING *;", [
+      article_id,
+    ])
+    .then(() => {
+      return db
+        .query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
+          article_id,
+        ])
+
+        .then(({ rowCount }) => {
+          if (rowCount === 0) {
+            return Promise.reject({ status: 404, msg: "article_id Not Found" });
+          }
+        });
     });
 };

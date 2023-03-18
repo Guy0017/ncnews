@@ -1425,3 +1425,30 @@ describe("POST /api/topics", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("returns status 204 and no content for valid delete request", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("returns status 404 and message 'comment_id Not Found' for id that does not exist in the comments database", () => {
+    return request(app)
+      .delete("/api/articles/99999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id Not Found");
+      });
+  });
+  test("returns status 400 and message 'Invalid Input' for invalid ID", () => {
+    return request(app)
+      .delete("/api/articles/INVALID_ID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Input");
+      });
+  });
+});
