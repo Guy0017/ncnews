@@ -13,6 +13,14 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .catch(next);
 };
 
+exports.updateComment = (req, res, next) => {
+  changeComment(req)
+    .then((comment) => {
+      res.status(200).send({ comments: comment });
+    })
+    .catch(next);
+};
+
 exports.postCommentByArticleId = (req, res, next) => {
   addCommentByArticleId(req)
     .then((uploadedComment) => {
@@ -25,14 +33,6 @@ exports.deleteCommentByCommentId = (req, res, next) => {
   removeCommentByCommentId(req)
     .then(() => {
       res.sendStatus(204);
-    })
-    .catch(next);
-};
-
-exports.updateComment = (req, res, next) => {
-  changeComment(req)
-    .then((comment) => {
-      res.status(200).send({ comments: comment });
     })
     .catch(next);
 };
