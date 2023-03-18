@@ -167,7 +167,7 @@ exports.findAllArticles = (req) => {
   });
 };
 
-exports.addCommentByUsername = (req) => {
+exports.addArticleByUsername = (req) => {
   const { title, topic, author, body } = req.body;
 
   return db

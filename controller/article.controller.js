@@ -2,7 +2,7 @@ const {
   findArticle,
   changeArticle,
   findAllArticles,
-  addCommentByUsername,
+  addArticleByUsername,
 } = require("../model/article.model");
 
 exports.getArticle = (req, res, next) => {
@@ -30,7 +30,7 @@ exports.getAllArticles = (req, res, next) => {
 };
 
 exports.postArticleByUsername = (req, res, next) => {
-  addCommentByUsername(req)
+  addArticleByUsername(req)
     .then((addedArticle) => { 
       res.status(201).send({ articles: addedArticle });
     })
