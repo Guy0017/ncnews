@@ -1396,7 +1396,7 @@ describe("POST /api/topics", () => {
         expect(body.msg).toBe("Invalid Input");
       });
   });
-  test.only("returns status 400 and 'Invalid Input' for incorrect value type in request body", () => {
+  test("returns status 400 and 'Invalid Input' for incorrect value type in request body", () => {
     const input = {
       slug: 2,
       description: 2,
