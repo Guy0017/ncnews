@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { checkTopicExists } = require("../model/topic.model");
+const { checkTopicExists } = require("../utils/utils");
 
 exports.findArticle = (req) => {
   const { article_id: id } = req.params;
@@ -198,22 +198,13 @@ exports.checkArticleIdExists = (id) => {
 exports.removeArticleByArticleId = (req) => {
   const { article_id } = req.params;
 
-  // Must delete comments first which have article_id as Foreign Key before article can be deleted
-
   return db
-    .query("DELETE FROM comments WHERE article_id = $1 RETURNING *;", [
+    .query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
       article_id,
     ])
-    .then(() => {
-      return db
-        .query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
-          article_id,
-        ])
-
-        .then(({ rowCount }) => {
-          if (rowCount === 0) {
-            return Promise.reject({ status: 404, msg: "article_id Not Found" });
-          }
-        });
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "article_id Not Found" });
+      }
     });
 };
