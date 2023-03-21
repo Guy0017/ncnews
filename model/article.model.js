@@ -135,6 +135,7 @@ exports.findAllArticles = (req) => {
           msg: "Not Found",
         });
       }
+
       return arrayOfArticles;
     });
 };

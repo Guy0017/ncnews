@@ -1452,8 +1452,6 @@ describe("DELETE /api/articles/:article_id", () => {
       });
   });
   test("returns status 204 and message when article deleted has no comments", () => {
-    return request(app)
-      .delete("/api/articles/2")
-      .expect(204)
+    return request(app).delete("/api/articles/2").expect(204);
   });
 });
