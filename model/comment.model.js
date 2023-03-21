@@ -5,18 +5,16 @@ exports.findCommentsByArticleId = (req) => {
   const { article_id: id } = req.params;
   let { limit, p } = req.query;
 
-  limit ??= 10;
-
-  const firstIndex = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
-  const lastIndex = p ? parseInt(p) * parseInt(limit) : parseInt(limit);
+  limit ? (limit = parseInt(limit)) : (limit = 10);
+  const offset = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
 
   if (
-    firstIndex < 0 ||
-    typeof firstIndex !== "number" ||
-    (firstIndex !== 0 && !firstIndex) ||
-    lastIndex < 1 ||
-    typeof lastIndex !== "number" ||
-    (lastIndex !== 0 && !lastIndex)
+    offset < 0 ||
+    typeof offset !== "number" ||
+    (offset !== 0 && !offset) ||
+    limit < 1 ||
+    typeof limit !== "number" ||
+    !limit
   ) {
     return Promise.reject({
       status: 400,
@@ -24,32 +22,26 @@ exports.findCommentsByArticleId = (req) => {
     });
   }
 
-  const promise = db.query("SELECT * FROM comments WHERE article_id = $1", [
-    id,
-  ]);
+  const promise = db.query(
+    "SELECT comments.*, COUNT(*) OVER() :: INT AS total_count FROM comments WHERE article_id = $1 LIMIT $2 OFFSET $3",
+    [id, limit, offset]
+  );
 
   return Promise.all([checkArticleIdExists(id), promise]).then((content) => {
     if (content[0].length === 0) {
       return Promise.reject({ status: 404, msg: "article_id Not Found" });
     }
 
-    const { rows: arrayOfComments } = content[1];
-    const total_count = arrayOfComments.length;
+    const { rows: arrayOfComments, rowCount } = content[1];
 
-    arrayOfComments.map((comment) => {
-      comment.total_count = total_count;
-    });
-
-    const paginatedComments = arrayOfComments.slice(firstIndex, lastIndex);
-
-    if (firstIndex > total_count) {
+    if (p && !rowCount) {
       return Promise.reject({
         status: 404,
         msg: "Not Found",
       });
     }
 
-    return paginatedComments;
+    return arrayOfComments;
   });
 };
 
