@@ -25,10 +25,8 @@ exports.findAllArticles = (req) => {
 
   sortBy ??= "created_at";
   order = order ? order.toUpperCase() : "DESC";
-  limit ??= 10;
-
-  const firstIndex = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
-  const lastIndex = p ? parseInt(p) * parseInt(limit) : parseInt(limit);
+  limit ? (limit = parseInt(limit)) : (limit = 10);
+  const offset = p ? (parseInt(p) - 1) * parseInt(limit) : 0;
 
   // Validation lists for sanitising request. AMEND to add functionality
 
@@ -60,13 +58,20 @@ exports.findAllArticles = (req) => {
     });
   }
 
+  if (!validSortBy.includes(sortBy) || !validAscOrDesc.includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Invalid Order/Sortby Query",
+    });
+  }
+
   if (
-    firstIndex < 0 ||
-    typeof firstIndex !== "number" ||
-    (firstIndex !== 0 && !firstIndex) ||
-    lastIndex < 1 ||
-    typeof lastIndex !== "number" ||
-    (lastIndex !== 0 && !lastIndex)
+    offset < 0 ||
+    typeof offset !== "number" ||
+    (offset !== 0 && !offset) ||
+    limit < 1 ||
+    typeof limit !== "number" ||
+    !limit
   ) {
     invalidQuery = true;
   }
@@ -75,17 +80,10 @@ exports.findAllArticles = (req) => {
     return Promise.reject({ status: 400, msg: "Bad Request: Invalid Query" });
   }
 
-  if (!validSortBy.includes(sortBy) || !validAscOrDesc.includes(order)) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad Request: Invalid Order/Sortby Query",
-    });
-  }
-
   // Concatinate database query string
 
   let queryStr =
-    "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
+    "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count, COUNT(*) OVER() :: INT AS total_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
 
   const injectArr = [];
 
@@ -94,7 +92,10 @@ exports.findAllArticles = (req) => {
     injectArr.push(topic);
   }
 
-  queryStr += `GROUP BY articles.article_id ORDER BY ${sortBy} ${order};`;
+  queryStr += `GROUP BY articles.article_id ORDER BY ${sortBy} ${order} `;
+
+  queryStr += `LIMIT ${topic ? "$2" : "$1"} OFFSET ${topic ? "$3" : "$2"};`;
+  injectArr.push(limit, offset);
 
   // execute promises: 2 routes, one for if topic is present, the other for when no topic is present
 
@@ -110,47 +111,32 @@ exports.findAllArticles = (req) => {
         });
       }
 
-      const { rows: arrayOfArticles } = array[0];
-      const total_count = arrayOfArticles.length;
+      const { rows: arrayOfArticles, rowCount } = array[0];
 
-      // paginate
-
-      arrayOfArticles.map((article) => {
-        article.total_count = total_count;
-      });
-
-      const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
-
-      if (firstIndex > total_count) {
+      if (p && !rowCount) {
         return Promise.reject({
           status: 404,
           msg: "Not Found",
         });
       }
 
-      return paginatedArticles;
+      return arrayOfArticles;
     });
   }
 
   // No topic promise starts here
 
-  return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
-    const total_count = arrayOfArticles.length;
-
-    arrayOfArticles.map((article) => {
-      article.total_count = total_count;
+  return db
+    .query(queryStr, injectArr)
+    .then(({ rows: arrayOfArticles, rowCount }) => {
+      if (p && !rowCount) {
+        return Promise.reject({
+          status: 404,
+          msg: "Not Found",
+        });
+      }
+      return arrayOfArticles;
     });
-
-    const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
-
-    if (firstIndex > total_count) {
-      return Promise.reject({
-        status: 404,
-        msg: "Not Found",
-      });
-    }
-    return paginatedArticles;
-  });
 };
 
 exports.changeArticle = (req) => {
