@@ -85,7 +85,7 @@ exports.findAllArticles = (req) => {
   // Concatinate database query string
 
   let queryStr =
-    "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
+    "SELECT articles.*, COUNT(comment_id) :: INT AS comment_count, COUNT(*) OVER() :: INT AS total_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ";
 
   const injectArr = [];
 
@@ -114,11 +114,7 @@ exports.findAllArticles = (req) => {
       const total_count = arrayOfArticles.length;
 
       // paginate
-
-      arrayOfArticles.map((article) => {
-        article.total_count = total_count;
-      });
-
+  
       const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
 
       if (firstIndex > total_count) {
@@ -137,12 +133,9 @@ exports.findAllArticles = (req) => {
   return db.query(queryStr, injectArr).then(({ rows: arrayOfArticles }) => {
     const total_count = arrayOfArticles.length;
 
-    arrayOfArticles.map((article) => {
-      article.total_count = total_count;
-    });
-
     const paginatedArticles = arrayOfArticles.slice(firstIndex, lastIndex);
 
+    
     if (firstIndex > total_count) {
       return Promise.reject({
         status: 404,
