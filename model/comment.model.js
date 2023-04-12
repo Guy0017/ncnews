@@ -34,6 +34,10 @@ exports.findCommentsByArticleId = (req) => {
 
     const { rows: arrayOfComments, rowCount } = content[1];
 
+    if (p && parseInt(p) === 1 && !rowCount) {
+      return arrayOfComments;
+    }
+
     if (p && !rowCount) {
       return Promise.reject({
         status: 404,
