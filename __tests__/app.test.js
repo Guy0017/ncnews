@@ -1323,6 +1323,17 @@ describe("Pagination for /api/articles/:article_id/comments", () => {
         });
       });
   });
+  test("returns empty array where Article exists but there are no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments?p=1")
+      .expect(200)
+      .then(({ body }) => {
+        const arrayOfComments = body.comments;
+
+        expect(arrayOfComments.length).toBe(0);
+        expect(arrayOfComments).toEqual([]);
+      });
+  });
 });
 
 describe("POST /api/topics", () => {
