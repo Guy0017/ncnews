@@ -9,12 +9,12 @@ https://ncnews-guy.cyclic.app/api
 It allows for the following functionality:
 
 - GET requests for api, topics, users, articles
-- GET requests for article (by article_id), comments (by article_id)
-- PATCH requests to add or remove votes
-- POST requests for posting comment (by article_id)
-- DELETE requests to delete comment (by comment_id)
+- GET requests for article (by article_id), comments (by article_id), user (by username)
+- PATCH requests to add or remove votes from article (by article_id), comment (comment_id)
+- POST requests for posting comment (by article_id), article, topic
+- DELETE requests to delete comment (by comment_id), article (by article_id)
 
-GET requests for articles will take queries: articles can be filtered by topic and sorted (ascending or decedending order) by a valid sortBy query.
+GET requests for articles will take queries: articles can be filtered by topic and sorted (ascending or decedending order) by a valid sortBy query. Articles and comments results are pagination (limit 10 by default).
 
 ## 1. Clone Repository
 
