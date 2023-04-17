@@ -13,8 +13,9 @@ const {
 const articleRouter = require("express").Router();
 
 articleRouter
-    .route("/").get(getAllArticles)
-    .post(postArticleByUsername);
+  .route("/")
+  .get(getAllArticles)
+  .post(postArticleByUsername);
 
 articleRouter
   .route("/:article_id")
